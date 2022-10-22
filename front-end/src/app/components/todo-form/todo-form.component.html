@@ -1,6 +1,20 @@
-<div>
-  <input placeholder="Title" [(ngModel)]="data.title"/>
-  <textarea placeholder="Body" [(ngModel)]="data.body" ></textarea>
-  <input type="checkbox" [(ngModel)]="data.status"/>
-  <button #submitBtn>submit</button>
+<div mat-dialog-content>
+  <mat-form-field class="l" appearance="fill">
+    <mat-label>Input</mat-label>
+    <input matInput [(ngModel)]="data.title" />
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Input</mat-label>
+    <textarea matInput [(ngModel)]="data.body"></textarea>
+  </mat-form-field>
+  
+  <mat-checkbox [color]="color" [(ngModel)]="data.status"></mat-checkbox>
+  
+  <button mat-raised-button [color]="color" #submitBtn>
+    <mat-icon *ngIf="onSubmit">
+      <mat-spinner [color]="color" diameter="20">
+      </mat-spinner>
+    </mat-icon>
+    Submit
+  </button>
 </div>

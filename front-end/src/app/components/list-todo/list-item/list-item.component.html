@@ -1,0 +1,23 @@
+<mat-card class="item" [ngStyle]="{'background-color': item.status ? 'accent' : ''}" >
+  <mat-card-title>{{item.title}}</mat-card-title>
+  <mat-card-content>
+    <div class="content">
+      <div class="body">
+        <div style="white-space:pre-wrap;">{{item.body}}</div>
+      </div>
+      <div class="status">
+        <mat-checkbox [color]="color" #itemStatus='matCheckbox' [checked]="item.status"></mat-checkbox>
+      </div>
+    </div>
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button mat-raised-button #deleteBtn='matButton'>
+      <mat-icon *ngIf="onDelete">
+        <mat-spinner [color]="color" diameter="20">
+        </mat-spinner>
+      </mat-icon>
+      Delete
+    </button>
+    <button mat-raised-button [color]="color" #editBtn='matButton' (click)="openDialog()">Edit</button>
+  </mat-card-actions>
+</mat-card>

@@ -1,0 +1,37 @@
+.body {
+  background-color: #fafafa;
+  max-height: 100vh;
+  .toolbar {
+    position: fixed;
+    z-index: 999;
+    top: 0px;
+    left: 0px;
+  }
+  .content {
+    position: relative;
+    padding-top: 64px;
+    max-height: calc(100vh - 64px);
+    overflow-y: hidden;
+  }
+}
+
+.example-container {
+  width: 100vw;
+  height: 100vh;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.example-sidenav-content {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.example-sidenav {
+  padding: 20px;
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}

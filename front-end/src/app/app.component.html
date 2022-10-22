@@ -1,1 +1,19 @@
-<router-outlet></router-outlet>
+<div class="body">
+  <mat-toolbar class="toolbar">
+    <button mat-icon-button class="example-icon" #menu="matButton" (click)="openMenu()"
+      aria-label="Example icon-button with menu icon">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span>My App</span>
+    <span class="example-spacer"></span>
+    <button mat-icon-button [color]="color" (click)="openForm()">
+      <mat-icon>add</mat-icon>
+    </button>
+    <button mat-icon-button [color]="color" (click)="changeTheme()">
+      <mat-icon>dark_mode</mat-icon>
+    </button>
+  </mat-toolbar>
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

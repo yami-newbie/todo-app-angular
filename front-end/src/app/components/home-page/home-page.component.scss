@@ -1,4 +1,8 @@
+.menu {
+  position: relative !important;
+}
+
 .content {
-  display: grid;
-  grid-template-columns: auto auto;
+  overflow-y: overlay;
+  height: calc(100vh - 64px);
 }

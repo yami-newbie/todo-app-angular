@@ -5,8 +5,16 @@ import { TodoItem } from '../share-types/modules/todoItem';
 import cors from 'cors';
 import bodyParser from 'body-parser'
 import { v4 as uuidv4 } from 'uuid';
+import url from 'url';
 
 const app = express();
+
+declare namespace Express {
+  export interface Request {
+    status: boolean
+  }
+}
+
 
 app.use(cors())
 
@@ -25,11 +33,16 @@ app.get('/todo/list', async (req, res) => {
   try {
     const value = await axios.get("todos");
 
-    if (value.status) {
-      res.json(value.data)
+    if (typeof req.query.status !== 'undefined') {
+      const status = req.query.status === 'true'
+
+      if (value.status) {
+        const v = value.data as TodoItem[];
+        res.json(v.filter(i => i.status == status))
+      }
     }
     else {
-      res.send("non")
+      res.json(value.data)
     }
   }
   catch (err: any) {

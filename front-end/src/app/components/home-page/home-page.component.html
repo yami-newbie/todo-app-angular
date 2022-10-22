@@ -1,11 +1,12 @@
-<div class="content">
-  <div>
-    <app-list-todo></app-list-todo>
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer #drawer="matDrawer" mode="side" opened>
+    <mat-selection-list class="menu" #navlink="matSelectionList" [multiple]="false">
+      <mat-list-option *ngFor="let link of routes" [value]="link.path">
+        {{link.name}}
+      </mat-list-option>
+    </mat-selection-list>
+  </mat-drawer>
+  <div class="content">
+    <router-outlet></router-outlet>
   </div>
-  <div>
-    <button (click)="isAdd=!isAdd">Add</button>
-    <div *ngIf="isAdd">
-      <app-todo-form (formData)="addItem($event)"></app-todo-form>
-    </div>
-  </div>
-</div>
+</mat-drawer-container>

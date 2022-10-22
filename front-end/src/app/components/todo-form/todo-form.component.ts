@@ -1,6 +1,10 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { exhaustMap, of, Subscription, tap, fromEvent } from 'rxjs';
+import { MatButton } from '@angular/material/button';
+import { AfterViewInit, Component, Inject, Input, OnInit, ViewChild } from '@angular/core';
+import { exhaustMap, of, Subscription, fromEvent, switchMap, take } from 'rxjs';
+import { AppThemeService } from 'src/app/services/app-theme.service';
 import { TodoItemCreateRequest } from '../../../../../share-types/request';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { TodoItem } from '../../../../../share-types/modules/todoItem';
 
 @Component({
   selector: 'app-todo-form',
@@ -9,26 +13,37 @@ import { TodoItemCreateRequest } from '../../../../../share-types/request';
 })
 export class TodoFormComponent implements OnInit, AfterViewInit {
   @Input() item: TodoItemCreateRequest | undefined;
-  @Output() formData: EventEmitter<TodoItemCreateRequest> = new EventEmitter();
 
+  color!: string
+  onSubmit: boolean = false
   data = { body: "", status: false, title: "" } as TodoItemCreateRequest
   buttonSubscription!: Subscription;
 
-  @ViewChild('submitBtn', { static: true }) button!: ElementRef;
+  @ViewChild('submitBtn', { static: true }) button!: MatButton;
+
+  constructor(
+    private readonly themeService: AppThemeService,
+    public dialogRef: MatDialogRef<TodoFormComponent>,
+    @Inject(MAT_DIALOG_DATA) public _data: { onSubmit: (data: TodoItem | TodoItemCreateRequest) => void, data?: TodoItem },
+  ) {
+    themeService.Theme.subscribe(val => this.color = val);
+
+    if (_data.data) this.data = _data.data;
+
+  }
 
   ngAfterViewInit() {
-    this.buttonSubscription = fromEvent(this.button.nativeElement, 'click')
-      .pipe(exhaustMap(() => of(this.data)))
+    this.buttonSubscription = fromEvent(this.button._elementRef.nativeElement, 'click')
+      .pipe(switchMap(() => of(this.data)), take(1))
       .subscribe((val) => {
         if (this.item) {
           const value = JSON.stringify(this.item) === JSON.stringify(val);
-
           if (!value)
-            this.formData.emit(val)
+            this._data.onSubmit(val)
         }
         else {
           if (val.title !== "" && val.body !== "") {
-            this.formData.emit(val)
+            this._data.onSubmit(val)
           }
         }
       });

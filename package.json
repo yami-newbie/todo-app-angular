@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "back-end": "cd back-end & yarn start & cd ..",
-    "front-end": "cd front-end & yarn start & cd ..",
+    "back-end": "cd back-end & yarn & yarn start & cd ..",
+    "front-end": "cd front-end & yarn & yarn start & cd ..",
     "open": "start http://localhost:4200",
     "dev": "concurrently --kill-others \"yarn back-end\" \"yarn front-end\""
   },

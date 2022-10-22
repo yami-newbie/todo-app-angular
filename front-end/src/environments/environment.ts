@@ -9,6 +9,9 @@ export const environment = {
 export const ROUTER = {
   default: "",
   home: "home",
+  all: "all",
+  complete: "complete",
+  incomplete: "incomplete"
 }
 
 export const serverUrl = "http://localhost:3001"
