@@ -1,0 +1,11 @@
+<div class="content">
+  <div>
+    <app-list-todo></app-list-todo>
+  </div>
+  <div>
+    <button (click)="isAdd=!isAdd">Add</button>
+    <div *ngIf="isAdd">
+      <app-todo-form (formData)="addItem($event)"></app-todo-form>
+    </div>
+  </div>
+</div>
