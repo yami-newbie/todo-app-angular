@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TodoItemCreateRequest } from '../../../share-types/request';
 import { TodoFormComponent } from './components/todo-form/todo-form.component';
-import { AppThemeService } from './services/app-theme.service';
+import { AppThemeService, ThemeApp } from './services/app-theme.service';
 import { TodolistService } from './services/todolist.service';
 
 @Component({
@@ -14,7 +14,7 @@ import { TodolistService } from './services/todolist.service';
 export class AppComponent {
 
   title = 'todo';
-  color!: string;
+  color!: ThemeApp;
 
   constructor(
     private readonly themeService: AppThemeService,

@@ -15,6 +15,7 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { CompleteItemPageComponent } from './components/complete-item-page/complete-item-page.component';
 import { IncompleteItemPageComponent } from './components/incomplete-item-page/incomplete-item-page.component';
 import { AllItemPageComponent } from './components/all-item-page/all-item-page.component';
+import { ArrayPipe } from './pipes/array.pipe';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { AllItemPageComponent } from './components/all-item-page/all-item-page.c
     TodoFormComponent,
     CompleteItemPageComponent,
     IncompleteItemPageComponent,
-    AllItemPageComponent
+    AllItemPageComponent,
+    ArrayPipe
   ],
   imports: [
     BrowserModule,

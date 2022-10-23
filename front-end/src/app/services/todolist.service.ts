@@ -6,6 +6,11 @@ import { serverUrl } from 'src/environments/environment';
 import { TodoItem } from '../../../../share-types/modules/todoItem';
 
 export type Status = 'all' | 'complete' | 'incomplete';
+export type Action = 'add' | 'update' | 'delete'
+export interface UpdateMessage {
+  action: Action,
+  item: TodoItem
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -15,7 +20,7 @@ export class TodolistService {
   private incompleteList: BehaviorSubject<TodoItem[]> = new BehaviorSubject([] as TodoItem[]);
 
   private onEdit: Subject<string> = new Subject();
-
+  private updateStream: Subject<UpdateMessage> = new Subject();
   private selected = this.allList;
 
   onStatus: Status = 'all';
@@ -23,20 +28,35 @@ export class TodolistService {
   list: TodoItem[] = []
 
   constructor(private http: HttpClient) {
-    this.allList.subscribe(val => this.list = val)
-    this.completeList.subscribe(val => this.list = val)
-    this.incompleteList.subscribe(val => this.list = val)
+    const sub = {
+      next: (val: TodoItem[]) => {
+        this.list = val;
+      },
+      error: (err: any) => {
+        console.log("error", err.message);
+      },
+      complete: () => {
+        console.log("complete");
+      }
+    }
+
+    this.allList.subscribe(sub)
+    this.completeList.subscribe(sub)
+    this.incompleteList.subscribe(sub)
   }
 
   private fetchData() {
     switch (this.onStatus) {
       case 'all':
+        this.selected = this.allList;
         this.getAllList();
         break;
       case 'complete':
+        this.selected = this.completeList;
         this.getCompleteList();
         break;
       case 'incomplete':
+        this.selected = this.incompleteList;
         this.getIncompleteList();
         break;
       default:
@@ -45,8 +65,6 @@ export class TodolistService {
   }
 
   private getAllList() {
-    this.selected = this.allList;
-
     this.http.get(serverUrl.concat("/todo/list")).subscribe({
       next: (v) => this.allList.next(v as TodoItem[]),
       error: (err) => console.log,
@@ -55,8 +73,6 @@ export class TodolistService {
   }
 
   private getCompleteList() {
-    this.selected = this.completeList;
-
     this.http.get(serverUrl.concat("/todo/list"), { params: { status: true } }).subscribe({
       next: (v) => this.completeList.next(v as TodoItem[]),
       error: (err) => console.log,
@@ -65,8 +81,6 @@ export class TodolistService {
   }
 
   private getIncompleteList() {
-    this.selected = this.incompleteList;
-
     this.http.get(serverUrl.concat("/todo/list"), { params: { status: false } }).subscribe({
       next: (v) => this.incompleteList.next(v as TodoItem[]),
       error: (err) => console.log,
@@ -76,22 +90,21 @@ export class TodolistService {
 
   addItem(newItem: TodoItemCreateRequest) {
     return this.http.post(serverUrl.concat("/todo"), newItem).pipe(map(v => v as TodoItem), tap((v) => {
-      if (this.onStatus === 'all' || (this.onStatus === 'complete' && newItem.status) || (this.onStatus === 'incomplete' && newItem.status === false))
-        this.list.push({ id: v.id, ...newItem });
-
-      this.selected.next(this.list)
+      this.sendUpdateMessage(v, 'add');
     }))
   }
 
   updateItem(newValue: TodoItem) {
     return this.http.patch(serverUrl.concat("/todo/" + newValue.id), newValue).pipe(tap(() => {
-      this.selected.next(this.list.map(i => i.id === newValue.id ? newValue : i))
+      this.sendUpdateMessage(newValue, 'update');
     }))
   }
 
-  deleteItem(id: string) {
-    return this.http.delete(serverUrl.concat("/todo/" + id)).pipe(tap(() => {
-      this.selected.next(this.list.filter(i => i.id !== id))
+
+
+  deleteItem(item: TodoItem) {
+    return this.http.delete(serverUrl.concat("/todo/" + item.id)).pipe(tap(() => {
+      this.sendUpdateMessage(item, 'delete');
     }))
   }
 
@@ -104,19 +117,23 @@ export class TodolistService {
     this.fetchData();
   }
 
-  get TodoList() {
-    return this.allList.asObservable()
+  private sendUpdateMessage(newValue: TodoItem, status: Action) {
+    if (this.onStatus === 'all' || (this.onStatus === 'complete' && newValue.status === true) || (this.onStatus === 'incomplete' && newValue.status === false))
+      this.updateStream.next({
+        action: status,
+        item: newValue
+      });
   }
 
-  get IncompleteList() {
-    return this.incompleteList.asObservable()
-  }
-
-  get CompleteList() {
-    return this.completeList.asObservable()
+  get Selected() {
+    return this.selected.asObservable()
   }
 
   get OnEdit() {
-    return this.onEdit
+    return this.onEdit.asObservable()
+  }
+
+  get UpdateStream() {
+    return this.updateStream.asObservable()
   }
 }

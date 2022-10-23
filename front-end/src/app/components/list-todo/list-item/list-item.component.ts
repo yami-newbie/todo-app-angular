@@ -4,7 +4,7 @@ import { MatButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription, switchMap, of, fromEvent, debounceTime, tap } from 'rxjs';
-import { AppThemeService } from 'src/app/services/app-theme.service';
+import { AppThemeService, ThemeApp } from 'src/app/services/app-theme.service';
 
 import { TodolistService } from 'src/app/services/todolist.service';
 import { TodoItem } from '../../../../../../share-types/modules/todoItem';
@@ -22,7 +22,7 @@ export class ListItemComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('itemStatus', { static: true }) statusCb!: MatCheckbox;
   @ViewChild('deleteBtn', { static: true }) deleteBtn!: MatButton;
 
-  color!: string;
+  color!: ThemeApp;
 
   isEdit: boolean = false;
   onDelete: boolean = false;
@@ -77,7 +77,7 @@ export class ListItemComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(
         tap(() => this.onDelete = true),
         debounceTime(500),
-        switchMap(() => this.todoService.deleteItem(this.item.id))
+        switchMap(() => this.todoService.deleteItem(this.item))
       ).subscribe(console.log)
   }
 

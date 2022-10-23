@@ -1,5 +1,5 @@
 <mat-card class="item" [ngStyle]="{'background-color': item.status ? 'accent' : ''}" >
-  <mat-card-title>{{item.title}}</mat-card-title>
+  <mat-card-title style="overflow-wrap: break-word;">{{item.title}}</mat-card-title>
   <mat-card-content>
     <div class="content">
       <div class="body">
@@ -11,7 +11,7 @@
     </div>
   </mat-card-content>
   <mat-card-actions align="end">
-    <button mat-raised-button #deleteBtn='matButton'>
+    <button mat-button [color]="color" #deleteBtn='matButton'>
       <mat-icon *ngIf="onDelete">
         <mat-spinner [color]="color" diameter="20">
         </mat-spinner>

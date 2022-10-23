@@ -5,7 +5,7 @@ import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { TodolistService } from 'src/app/services/todolist.service';
 import { TodoItem } from '../../../../../share-types/modules/todoItem';
 import { TodoItemCreateRequest } from '../../../../../share-types/request';
-import { AppThemeService } from 'src/app/services/app-theme.service';
+import { AppThemeService, ThemeApp } from 'src/app/services/app-theme.service';
 import { MatDialog } from '@angular/material/dialog';
 import { TodoFormComponent } from '../todo-form/todo-form.component';
 import { MatDrawer } from '@angular/material/sidenav';
@@ -19,7 +19,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./home-page.component.scss']
 })
 export class HomePageComponent implements OnInit, AfterViewInit {
-  color!: string;
+  color!: ThemeApp;
   routes: { path: string, name: string }[] = [
     {
       path: ROUTER.all,

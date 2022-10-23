@@ -1,6 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
-type ThemeApp = 'primary' | 'accent';
+
+export type ThemeApp = 'primary' | 'accent';
 
 @Injectable({
   providedIn: 'root',
