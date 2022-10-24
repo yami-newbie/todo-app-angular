@@ -153,9 +153,9 @@ export class TodolistService {
     this.onEdit.next(id);
   }
 
-  changeStatusSort(_status: Status) {
-    this.onStatus = _status;
-    this.fetchData(_status);
+  changeStatusSort(_status: string) {
+    this.onStatus = _status as Status;
+    this.fetchData(_status as Status);
   }
 
   private sendUpdateMessage(newValue: TodoItem, status: Action) {

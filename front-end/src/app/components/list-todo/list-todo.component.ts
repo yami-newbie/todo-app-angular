@@ -10,7 +10,7 @@ import { TodoItem } from '../../../../../share-types/modules/todoItem';
 })
 export class ListTodoComponent implements OnInit, OnDestroy {
   list: TodoItem[] = []
-  @Input() option!: Status;
+  @Input() option!: string;
 
   initSubscription!: Subscription;
   updateSubscription!: Subscription;
