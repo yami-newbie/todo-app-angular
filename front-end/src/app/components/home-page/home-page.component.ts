@@ -59,6 +59,7 @@ export class HomePageComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.router.navigate([ROUTER.home, ROUTER.all])
   }
 
 }

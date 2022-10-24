@@ -1,3 +1,4 @@
+import { endpoint } from './../../environments/environment';
 import { TodoItemCreateRequest } from './../../../../share-types/request/index';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -5,8 +6,18 @@ import { BehaviorSubject, map, mapTo, Subject, tap } from 'rxjs';
 import { serverUrl } from 'src/environments/environment';
 import { TodoItem } from '../../../../share-types/modules/todoItem';
 
-export type Status = 'all' | 'complete' | 'incomplete';
-export type Action = 'add' | 'update' | 'delete'
+// export type Status = 'all' | 'complete' | 'incomplete';
+export enum Status {
+  all = 'all',
+  complete = 'complete',
+  incomplete = 'incomplete'
+}
+// export type Action = 'add' | 'update' | 'delete'
+export enum Action {
+  add = 'add',
+  update = 'update',
+  delete = 'delete'
+}
 export interface UpdateMessage {
   action: Action,
   item: TodoItem
@@ -23,7 +34,7 @@ export class TodolistService {
   private updateStream: Subject<UpdateMessage> = new Subject();
   private selected = this.allList;
 
-  onStatus: Status = 'all';
+  onStatus: Status = Status.all;
 
   list: TodoItem[] = []
 
@@ -45,17 +56,17 @@ export class TodolistService {
     this.incompleteList.subscribe(sub)
   }
 
-  private fetchData() {
-    switch (this.onStatus) {
-      case 'all':
+  private fetchData(status: Status) {
+    switch (status) {
+      case Status.all:
         this.selected = this.allList;
         this.getAllList();
         break;
-      case 'complete':
+      case Status.complete:
         this.selected = this.completeList;
         this.getCompleteList();
         break;
-      case 'incomplete':
+      case Status.incomplete:
         this.selected = this.incompleteList;
         this.getIncompleteList();
         break;
@@ -65,7 +76,7 @@ export class TodolistService {
   }
 
   private getAllList() {
-    this.http.get(serverUrl.concat("/todo/list")).subscribe({
+    this.http.get([serverUrl, endpoint.list].join("/")).subscribe({
       next: (v) => this.allList.next(v as TodoItem[]),
       error: (err) => console.log,
       complete: () => console.log("all")
@@ -73,7 +84,7 @@ export class TodolistService {
   }
 
   private getCompleteList() {
-    this.http.get(serverUrl.concat("/todo/list"), { params: { status: true } }).subscribe({
+    this.http.get([serverUrl, endpoint.list].join("/"), { params: { status: true } }).subscribe({
       next: (v) => this.completeList.next(v as TodoItem[]),
       error: (err) => console.log,
       complete: () => console.log("complete")
@@ -81,7 +92,7 @@ export class TodolistService {
   }
 
   private getIncompleteList() {
-    this.http.get(serverUrl.concat("/todo/list"), { params: { status: false } }).subscribe({
+    this.http.get([serverUrl, endpoint.list].join("/"), { params: { status: false } }).subscribe({
       next: (v) => this.incompleteList.next(v as TodoItem[]),
       error: (err) => console.log,
       complete: () => console.log("incomplete")
@@ -89,22 +100,52 @@ export class TodolistService {
   }
 
   addItem(newItem: TodoItemCreateRequest) {
-    return this.http.post(serverUrl.concat("/todo"), newItem).pipe(map(v => v as TodoItem), tap((v) => {
-      this.sendUpdateMessage(v, 'add');
+    return this.http.post([serverUrl, endpoint.todo].join("/"), newItem).pipe(map(v => v as TodoItem), tap((v) => {
+      switch (this.onStatus) {
+        case Status.all:
+          this.sendUpdateMessage(v, Action.add);
+          break;
+        case Status.complete:
+          if (newItem.status)
+            this.sendUpdateMessage(v, Action.add);
+          break;
+        case Status.incomplete:
+          if (!newItem.status)
+            this.sendUpdateMessage(v, Action.add);
+          break;
+        default:
+          break;
+      }
     }))
   }
 
   updateItem(newValue: TodoItem) {
-    return this.http.patch(serverUrl.concat("/todo/" + newValue.id), newValue).pipe(tap(() => {
-      this.sendUpdateMessage(newValue, 'update');
+    return this.http.patch(serverUrl.concat([serverUrl, endpoint.todo, newValue.id].join("/")), newValue).pipe(tap(() => {
+      switch (this.onStatus) {
+        case Status.all:
+          this.sendUpdateMessage(newValue, Action.update);
+          break;
+        case Status.complete:
+          if (newValue.status)
+            this.sendUpdateMessage(newValue, Action.update);
+          else
+            this.sendUpdateMessage(newValue, Action.delete);
+          break;
+        case Status.incomplete:
+          if (!newValue.status)
+            this.sendUpdateMessage(newValue, Action.update);
+          else
+            this.sendUpdateMessage(newValue, Action.delete);
+          break;
+        default:
+          break;
+      }
     }))
   }
 
-
-
   deleteItem(item: TodoItem) {
-    return this.http.delete(serverUrl.concat("/todo/" + item.id)).pipe(tap(() => {
-      this.sendUpdateMessage(item, 'delete');
+    return this.http.delete([serverUrl, endpoint.todo, item.id].join("/")).pipe(tap(() => {
+      this.sendUpdateMessage(item, Action.delete);
     }))
   }
 
@@ -114,15 +155,14 @@ export class TodolistService {
 
   changeStatusSort(_status: Status) {
     this.onStatus = _status;
-    this.fetchData();
+    this.fetchData(_status);
   }
 
   private sendUpdateMessage(newValue: TodoItem, status: Action) {
-    if (this.onStatus === 'all' || (this.onStatus === 'complete' && newValue.status === true) || (this.onStatus === 'incomplete' && newValue.status === false))
-      this.updateStream.next({
-        action: status,
-        item: newValue
-      });
+    this.updateStream.next({
+      action: status,
+      item: newValue
+    });
   }
 
   get Selected() {
